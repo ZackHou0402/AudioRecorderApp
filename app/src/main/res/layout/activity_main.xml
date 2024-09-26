@@ -15,6 +15,12 @@
         android:text="Start Recording"
         tools:ignore="HardcodedText" />
 
+    <Button
+        android:id="@+id/btnBluetooth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Bluetooth Device"
+        android:layout_marginTop="8dp" />
     <TextView
         android:id="@+id/tvStatus"
         android:layout_width="wrap_content"
