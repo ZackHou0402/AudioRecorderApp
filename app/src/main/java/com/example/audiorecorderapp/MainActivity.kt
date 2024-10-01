@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothHeadset
 import android.bluetooth.BluetoothProfile
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Bundle
@@ -52,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         listView = findViewById(R.id.listView)
         btnBluetooth = findViewById(R.id.btnBluetooth)
 
-        // Initialize audio files list
         audioFiles = mutableListOf()
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, audioFiles)
         listView.adapter = adapter
@@ -70,7 +70,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnBluetooth.setOnClickListener {
-            // Check for Bluetooth permissions
             if (checkBluetoothPermissions()) {
                 showBluetoothDevices()
             } else {
@@ -82,7 +81,6 @@ class MainActivity : AppCompatActivity() {
         setupBluetooth()
     }
 
-    // Check Bluetooth permissions
     private fun checkBluetoothPermissions(): Boolean {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
             return false
@@ -90,7 +88,6 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    // Request Bluetooth permissions
     private fun requestBluetoothPermissions() {
         ActivityCompat.requestPermissions(
             this,
@@ -99,20 +96,18 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    // Handle permission result
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == BLUETOOTH_PERMISSION_REQUEST) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Bluetooth permissions granted", Toast.LENGTH_SHORT).show()
-                showBluetoothDevices()  // Retry showing devices after permission granted
+                showBluetoothDevices()
             } else {
                 Toast.makeText(this, "Bluetooth permissions denied", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // Set up Bluetooth
     private fun setupBluetooth() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         if (bluetoothAdapter == null) {
@@ -127,7 +122,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         try {
-            // Wrap Bluetooth service connection in a try-catch block to handle potential SecurityException
             bluetoothAdapter!!.getProfileProxy(this, object : BluetoothProfile.ServiceListener {
                 override fun onServiceConnected(profile: Int, proxy: BluetoothProfile) {
                     if (profile == BluetoothProfile.HEADSET) {
@@ -146,7 +140,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Show Bluetooth devices to select
     private fun showBluetoothDevices() {
         val pairedDevices: Set<BluetoothDevice> = bluetoothAdapter!!.bondedDevices
         val deviceNames = pairedDevices.map { it.name }
@@ -160,16 +153,15 @@ class MainActivity : AppCompatActivity() {
         builder.show()
     }
 
-    // Start recording, using Bluetooth if available
     private fun startRecording() {
         if (!checkAndRequestPermissions()) return
 
         try {
             outputFile = "${externalCacheDir?.absolutePath}/${System.currentTimeMillis()}.m4a"
             mediaRecorder = MediaRecorder().apply {
-                // Use Bluetooth mic if selected, else default to MIC
+                // Use Bluetooth mic if available, otherwise fallback to MIC
                 val audioSource = if (selectedBluetoothDevice != null && isBluetoothMicConnected()) {
-                    MediaRecorder.AudioSource.VOICE_COMMUNICATION
+                    MediaRecorder.AudioSource.VOICE_COMMUNICATION  // VOICE_COMMUNICATION uses Bluetooth mic
                 } else {
                     MediaRecorder.AudioSource.MIC
                 }
@@ -193,13 +185,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Check if Bluetooth mic is connected
     private fun isBluetoothMicConnected(): Boolean {
         val connectedDevices = bluetoothHeadset?.connectedDevices ?: return false
         return selectedBluetoothDevice != null && connectedDevices.contains(selectedBluetoothDevice)
     }
 
-    // Stop recording
     private fun stopRecording() {
         try {
             mediaRecorder?.apply {
@@ -211,7 +201,6 @@ class MainActivity : AppCompatActivity() {
             btnRecord.text = "Start Recording"
             tvStatus.text = "Status: Idle"
 
-            // Add the recorded audio file to the list
             audioFiles.add(outputFile)
             adapter.notifyDataSetChanged()
         } catch (e: IllegalStateException) {
@@ -220,7 +209,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Play audio
     private fun playAudio(filePath: String) {
         try {
             mediaPlayer?.release()
@@ -239,7 +227,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Load existing audio files
     private fun loadAudioFiles() {
         val directory = externalCacheDir
         val files = directory?.listFiles { file -> file.extension == "m4a" }
@@ -249,7 +236,6 @@ class MainActivity : AppCompatActivity() {
         adapter.notifyDataSetChanged()
     }
 
-    // Check and request recording permissions
     private fun checkAndRequestPermissions(): Boolean {
         val permission = Manifest.permission.RECORD_AUDIO
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
