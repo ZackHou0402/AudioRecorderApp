@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.example.audiorecorderapp"
-    compileSdk = 34 // Set compileSdk to 34 (or any version >= 29)
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.audiorecorderapp"
-        minSdk = 23 // Minimum SDK version
-        targetSdk = 34 // Target SDK version should match compileSdk
+        minSdk = 23
+        targetSdk = 34
 
         versionCode = 1
         versionName = "1.0"
@@ -41,39 +41,38 @@ android {
     }
 
     buildFeatures {
-        compose = true // Keep this line if using Jetpack Compose
+        compose = true
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1" // Ensure this version matches your Compose version
+        kotlinCompilerExtensionVersion = "1.5.1"
     }
 
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}" // Exclude specific licenses
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
+    implementation(platform(libs.androidx.compose.bom))  // 使用 BOM 管理 Compose 依賴版本
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // 其他依賴
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
 
-    // Test dependencies
+    // 測試依賴
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-    // Add any additional dependencies here
 }
